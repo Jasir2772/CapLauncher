@@ -7,13 +7,21 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          submodules: true
+      - uses: actions/checkout@v4
 
-      - name: Apply CapLauncher files
-        run: unzip -o CapLauncher-ozgargan-fayllar.zip
+      - name: Unpack project
+        run: unzip -q -o "$(ls CapLauncher*.zip | head -1)" -d project
+
+      - name: Get submodules
+        working-directory: project
+        run: |
+          rm -rf glfw mojoexec sdl
+          git clone https://github.com/MojoLauncher/glfw glfw
+          git -C glfw checkout 7900e19
+          git clone https://github.com/MojoLauncher/mojoexec mojoexec
+          git -C mojoexec checkout 5a60f9e
+          git clone https://github.com/MojoLauncher/MojoSDL sdl
+          git -C sdl checkout cd7eddd
 
       - name: Get LTW
         uses: dawidd6/action-download-artifact@v6
@@ -23,7 +31,7 @@ jobs:
           workflow: android.yml
           workflow_conclusion: success
           name: output-aar
-          path: app_mojo/libs
+          path: project/app_mojo/libs
 
       - uses: gradle/actions/setup-gradle@v4
         with:
@@ -36,6 +44,7 @@ jobs:
           java-version: '17'
 
       - name: Build APK
+        working-directory: project
         run: |
           gradle :app_mojo:assembleFullDebug
           mkdir out
@@ -45,4 +54,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: CapLauncher-APK
-          path: out/CapLauncher.apk
+          path: project/out/CapLauncher.apk
