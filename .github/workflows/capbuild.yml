@@ -22,6 +22,11 @@ jobs:
           git -C mojoexec checkout 5a60f9e
           git clone https://github.com/MojoLauncher/MojoSDL sdl
           git -C sdl checkout cd7eddd
+          cd app_mojo/src/main/jni
+          rm -rf glfw mojoexec sdl
+          ln -s ../../../../glfw glfw
+          ln -s ../../../../mojoexec mojoexec
+          ln -s ../../../../sdl sdl
 
       - name: Get LTW
         uses: dawidd6/action-download-artifact@v6
